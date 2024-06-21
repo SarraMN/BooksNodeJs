@@ -28,11 +28,17 @@ export class BooksService {
   }
 
   async update(id: number, book: Partial<Book>): Promise<Book> {
-    await this.booksRepository.update(id, book);
-    const updatedBook = await this.booksRepository.findOne({ where: book });
-    if (!updatedBook) {
+    const existingBook = await this.booksRepository.findOne({ where: { id } });
+    if (!existingBook) {
       throw new NotFoundException(`Book with ID ${id} not found`);
     }
+  
+    await this.booksRepository.update(id, book);
+    const updatedBook = await this.booksRepository.findOne({ where: { id } });
+    if (!updatedBook) {
+      throw new NotFoundException(`Book with ID ${id} not found after update`);
+    }
+  
     return updatedBook;
   }
 
